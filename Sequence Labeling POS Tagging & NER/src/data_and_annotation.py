@@ -26,13 +26,7 @@ NER_TAGS = [
     "O"
 ]
 
-PUNCT_TOKENS = {
-    "۔", "،", ".", ",", "!", "؟", ":", ";", "؛",
-    "(", ")", "[", "]", "{", "}", "-", "—", "–",
-    '"', "'", "''", "``", "…", "۔۔۔"
-}
-
-STRIP_CHARS = "۔،!?؟؛:,.()[]{}\"'—–…"
+PUNCT_TOKENS = {"۔", "،", ".", ",", "!", "؟", ":", ";", "(", ")", "[", "]", "{", "}", "-", "—", '"'}
 
 
 TOPIC_KEYWORDS = {
@@ -57,221 +51,226 @@ TOPIC_KEYWORDS = {
     ]
 }
 
-# -----------------------------
-# POS resources (expanded Urdu-aware rules, mapped to assignment tagset)
-# Final output tags remain:
-# NOUN VERB ADJ ADV PRON DET CONJ POST NUM PUNC UNK
-# -----------------------------
-MONTH_NAMES = {
-    "جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون",
-    "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"
-}
 
-DAY_NAMES = {
-    "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ", "اتوار"
-}
-
-# Pronouns: personal, demonstrative, relative, reflexive-ish forms
-PRONOUNS = {
-    "میں", "ہم", "تم", "آپ", "وہ", "یہ", "اس", "ان",
-    "جس", "جن", "جو", "جسے", "جنہیں", "انہیں", "انھیں",
-    "مجھے", "ہمیں", "تمہیں", "اپ", "اپنا", "اپنی", "اپنے",
-    "خود"
-}
-
-# Determiners / quantifiers / articles-like forms
-DETERMINERS = {
-    "ایک", "ہر", "کچھ", "تمام", "کوئی", "کسی", "چند",
-    "اسی", "ایسی", "ایسا", "ایسے", "دوسرا", "دوسری", "دوسرے",
-    "پہلا", "پہلی", "پہلے", "متعدد", "بعض"
-}
-
-# Conjunctions
-CONJUNCTIONS = {
-    "اور", "یا", "لیکن", "بلکہ", "اگر", "مگر", "تاہم",
-    "جبکہ", "کہ", "کیونکہ", "تو", "چنانچہ"
-}
-
-# Postpositions
-POSTPOSITIONS = {
-    "میں", "پر", "سے", "کو", "کا", "کی", "کے", "تک", "بعد",
-    "ساتھ", "لئے", "لیے", "تحت", "بارے", "طور", "پاس",
-    "جانب", "خلاف", "بھی", "بھر", "اندر", "باہر", "اوپر", "نیچے"
-}
-
-# Adverbs: time, degree, frequency, place, negation
-ADVERBS = {
-    "اب", "پھر", "زیادہ", "کم", "بہت", "جلد", "اکثر", "ہمیشہ",
-    "کبھی", "شاید", "تقریبا", "تقریباً", "مزید", "یہاں", "وہاں",
-    "آج", "کل", "فوراً", "دوبارہ", "نہ", "نہیں"
-}
-
-# Core verb list: auxiliaries, copulas, light verbs, common finite forms
-VERBS = {
-    "ہے", "ہیں", "تھا", "تھی", "تھے",
-    "ہو", "ہوا", "ہوئی", "ہوئے",
-    "کر", "کیا", "کی", "کئے", "کیے", "کرے",
-    "کرتا", "کرتی", "کرتے",
-    "جا", "جاتا", "جاتی", "جاتے",
-    "گیا", "گئی", "گئے",
-    "رہا", "رہی", "رہے",
-    "لگا", "لگی", "لگے",
-    "لیا", "لی", "لیں", "لے",
-    "دیا", "دی", "دیے",
-    "ملا", "ملی", "ملے",
-    "رکھا", "رکھی", "رکھے",
-    "چاہ", "چاہا", "چاہے", "چاہتی", "چاہتے",
-    "سکتا", "سکتی", "سکتے",
-    "چاہیے", "پڑا", "پڑی", "پڑے",
-    "بتایا", "کہا", "سنا", "پہنچا", "پہنچی", "پہنچے",
-    "شروع", "ختم", "ہلاک", "شامل"
-}
-
-# Adjectives: descriptive, comparative, evaluative
-ADJECTIVES = {
-    "بڑا", "بڑی", "بڑے",
-    "چھوٹا", "چھوٹی", "چھوٹے",
-    "اہم", "قومی", "سیاسی", "مقامی", "عالمی",
-    "مختلف", "سابق", "شدید", "خوبصورت", "سخت", "ضروری", "کامیاب",
-    "واضح", "حالیہ", "متعلقہ", "مبینہ", "بہتر", "کمتر",
-    "اچھا", "اچھی", "اچھے", "پہلا", "پہلی", "پہلے",
-    "دوسرا", "دوسری", "دوسرے", "غیر", "طویل"
-}
-
-# Some content words that are often mistaken because of noisy corpus;
-# keep them as nouns by default
-COMMON_NOUN_HINTS = {
-    "سال", "ماہ", "دن", "رات", "وقت", "خبر", "رپورٹ", "حکومت", "عدالت",
-    "فوج", "ملک", "شہر", "خاندان", "جنگ", "موقع", "روزگار", "تعلیم",
-    "صحت", "پولیس", "وزیر", "صدر", "وزیراعظم", "ڈاکٹر", "ہسپتال",
-    "میچ", "ٹیم", "کرکٹ", "پاکستان", "انڈیا", "امریکہ", "ایران", "روس", "چین"
-}
-
-# Optional grouped lookup
 POS_LEXICON = {
-    "PRON": PRONOUNS,
-    "DET": DETERMINERS,
-    "CONJ": CONJUNCTIONS,
-    "POST": POSTPOSITIONS,
-    "ADV": ADVERBS,
-    "VERB": VERBS,
-    "ADJ": ADJECTIVES,
+    "PRON": {
+        "میں", "ہم", "تم", "آپ", "وہ", "یہ", "ان", "اس", "انہیں", "انھیں",
+        "مجھے", "ہمیں", "تمہیں", "اپ", "اپنے", "اپنی", "اپنا"
+    },
+    "DET": {
+        "ایک", "یہ", "وہ", "اس", "ان", "کچھ", "تمام", "ہر", "کسی", "کوئی"
+    },
+    "CONJ": {
+        "اور", "یا", "لیکن", "بلکہ", "اگر", "مگر", "تاہم", "جبکہ", "کہ"
+    },
+    "POST": {
+        "میں", "پر", "سے", "کو", "کا", "کی", "کے", "تک", "بعد",
+        "ساتھ", "لئے", "لیے", "تحت", "بارے", "طور", "پاس"
+    },
+    "ADV": {
+        "اب", "پھر", "زیادہ", "کم", "بہت", "جلد", "اکثر", "ہمیشہ", "کبھی",
+        "شاید", "تقریبا", "تقریباً", "مزید"
+    },
+    "VERB": {
+        "ہے", "ہیں", "تھا", "تھی", "تھے", "ہو", "ہوا", "ہوئی", "ہوئے",
+        "کر", "کیا", "کی", "کئے", "کرے", "کرتا", "کرتی", "کرتے",
+        "گیا", "گئی", "گئے", "جا", "جاتا", "جاتی", "جاتے",
+        "رہا", "رہی", "رہے", "لگا", "لگی", "لگے",
+        "دیا", "دی", "دیے", "لیا", "لی", "لیں", "لے", "ملا", "ملی", "ملے"
+    },
+    "ADJ": {
+        "بڑا", "بڑی", "بڑے", "اہم", "قومی", "سیاسی", "مقامی", "عالمی",
+        "مختلف", "سابق", "شدید", "خوبصورت", "سخت", "ضروری", "کامیاب"
+    }
 }
 
 
-def normalize_token_for_rules(tok: str) -> str:
-    return tok.strip(STRIP_CHARS).strip()
+PERSON_GAZETTEER = {
+    "عمران", "نواز", "شہباز", "مریم", "زرداری", "بشری", "اسحاق", "محسن",
+    "عاصم", "فیض", "شاہد", "رضا", "احمد", "حسین", "علی", "حمید", "سرفراز",
+    "صبا", "قمر", "طاہر", "خالد", "فاطمہ", "شازیہ", "رحمان", "عثمان",
+    "شہزاد", "اکبر", "عارف", "قریشی", "محمد", "ریاض", "احسن", "کاشف",
+    "حسن", "طفیل", "مرزا", "ڈار", "منیر", "اوپیندر", "پوتن", "ٹرمپ",
+    "نتن", "یاہو", "اردوغان", "نور", "ناصر", "مجوکہ", "کنڈی", "فیصل"
+}
+
+LOCATION_GAZETTEER = {
+    "پاکستان", "پنجاب", "سندھ", "بلوچستان", "خیبر", "پختونخوا", "اسلام", "اباد",
+    "لاہور", "کراچی", "راولپنڈی", "پشاور", "کوئٹہ", "مری",
+    "شیخوپورہ", "حیدرآباد", "سوات", "ہنزہ", "چترال", "کشمیر",
+    "غزہ", "ایران", "امریکہ", "روس", "چین", "بھارت", "انڈیا", "ترکی",
+    "عمان", "افغانستان", "ترکمانستان", "ڈیووس", "لندن",
+    "سیالکوٹ", "پسرور", "کرم", "چپورسن", "نوشکی", "قلات",
+    "ٹانک", "جنڈولہ", "صدہ", "مکہ", "مدینہ", "اشک", "آباد",
+    "فیصل", "آباد"
+}
+
+ORG_GAZETTEER = {
+    "پی", "آئی", "اے", "نیپرا", "سپارکو", "آئی", "ایس", "سی", "ٹی",
+    "ڈی", "عدالت", "سپریم", "کورٹ", "اقوام", "متحدہ", "وزارت", "خارجہ",
+    "پولیس", "حکومت", "پارلیمان", "اسمبلی", "فوج", "یونیورسٹی",
+    "ہسپتال", "ایگزیوس", "بی", "سی"
+}
+
+
+def read_text(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def read_json(path: str) -> Dict[str, Any]:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def parse_numbered_blocks(text: str) -> Dict[str, str]:
+    pattern = re.compile(r"\[(\d+)\]\s*(.*?)(?=\n\[\d+\]\s*|\Z)", re.DOTALL)
+    blocks: Dict[str, str] = {}
+    for match in pattern.finditer(text):
+        doc_id = match.group(1)
+        content = match.group(2).strip()
+        blocks[doc_id] = content
+    return blocks
+
+
+def extract_cleaned_sentences(block_text: str) -> List[List[str]]:
+    sentences = re.findall(r"<SOS>\s*(.*?)\s*<EOS>", block_text, flags=re.DOTALL)
+    out: List[List[str]] = []
+    for sent in sentences:
+        tokens = [tok.strip() for tok in sent.split() if tok.strip()]
+        if tokens:
+            out.append(tokens)
+    return out
+
+
+def assign_topic(title: str, tokens: List[str]) -> str:
+    text = (title + " " + " ".join(tokens[:250])).lower()
+    scores: Dict[str, int] = {}
+    for topic, keywords in TOPIC_KEYWORDS.items():
+        scores[topic] = sum(text.count(kw.lower()) for kw in keywords)
+
+    best_topic = max(scores, key=scores.get)
+    if scores[best_topic] == 0:
+        return "health_society"
+    return best_topic
+
+
+def load_articles(cleaned_path: str, metadata_path: str) -> List[Dict[str, Any]]:
+    cleaned_text = read_text(cleaned_path)
+    metadata = read_json(metadata_path)
+
+    cleaned_blocks = parse_numbered_blocks(cleaned_text)
+    common_ids = sorted(
+        set(cleaned_blocks.keys()) & set(metadata.keys()),
+        key=lambda x: int(x)
+    )
+
+    articles: List[Dict[str, Any]] = []
+    for doc_id in common_ids:
+        cleaned_sentences = extract_cleaned_sentences(cleaned_blocks[doc_id])
+        cleaned_tokens = [tok for sent in cleaned_sentences for tok in sent]
+
+        article = {
+            "id": doc_id,
+            "title": metadata[doc_id].get("title", ""),
+            "publish_date": metadata[doc_id].get("publish_date", ""),
+            "cleaned_sentences": cleaned_sentences,
+            "cleaned_tokens": cleaned_tokens,
+        }
+        article["topic"] = assign_topic(article["title"], article["cleaned_tokens"])
+        articles.append(article)
+
+    return articles
+
+
+def build_sentence_pool(articles: List[Dict[str, Any]]) -> pd.DataFrame:
+    rows = []
+    for article in articles:
+        for sent in article["cleaned_sentences"]:
+            if 4 <= len(sent) <= 40:
+                rows.append({
+                    "article_id": article["id"],
+                    "title": article["title"],
+                    "topic": article["topic"],
+                    "tokens": sent
+                })
+    return pd.DataFrame(rows)
+
+
+def select_balanced_sentences(
+    sentence_df: pd.DataFrame,
+    target_size: int = 500,
+    min_per_topic: int = 100,
+    core_topics: List[str] = None,
+    random_state: int = SEED
+) -> pd.DataFrame:
+    if core_topics is None:
+        core_topics = ["politics", "sports", "economy"]
+
+    selected_rows = []
+    for topic in core_topics:
+        topic_df = sentence_df[sentence_df["topic"] == topic]
+        n_take = min(min_per_topic, len(topic_df))
+        if n_take == 0:
+            continue
+        selected_rows.append(topic_df.sample(n=n_take, random_state=random_state))
+
+    if selected_rows:
+        selected_df = pd.concat(selected_rows, ignore_index=False)
+
+        # create a hashable key for duplicate removal
+        selected_df = selected_df.copy()
+        selected_df["_tokens_key"] = selected_df["tokens"].apply(lambda x: tuple(x))
+        selected_df = selected_df.drop_duplicates(subset=["article_id", "topic", "_tokens_key"])
+        selected_df = selected_df.drop(columns=["_tokens_key"])
+    else:
+        selected_df = pd.DataFrame(columns=sentence_df.columns)
+
+    remaining_needed = target_size - len(selected_df)
+    remaining_pool = sentence_df.drop(selected_df.index, errors="ignore")
+
+    if remaining_needed > 0 and len(remaining_pool) > 0:
+        extra_rows = remaining_pool.sample(
+            n=min(remaining_needed, len(remaining_pool)),
+            random_state=random_state
+        )
+        selected_df = pd.concat([selected_df, extra_rows], ignore_index=False)
+
+        selected_df = selected_df.copy()
+        selected_df["_tokens_key"] = selected_df["tokens"].apply(lambda x: tuple(x))
+        selected_df = selected_df.drop_duplicates(subset=["article_id", "topic", "_tokens_key"])
+        selected_df = selected_df.drop(columns=["_tokens_key"])
+
+    selected_df = selected_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
+    return selected_df
 
 
 def is_number_token(tok: str) -> bool:
     return tok.isdigit() or tok == "<NUM>"
 
 
-def is_punctuation_token(tok: str) -> bool:
-    if tok in PUNCT_TOKENS:
-        return True
-    stripped = normalize_token_for_rules(tok)
-    return stripped == ""
-
-
 def pos_tag_token(tok: str) -> str:
-    """
-    Rich Urdu-aware rule-based POS tagging mapped into the assignment's reduced tagset.
-    """
-
-    # 1) Punctuation / empty
-    if is_punctuation_token(tok):
+    if tok in PUNCT_TOKENS:
         return "PUNC"
-
-    # 2) Numbers
     if is_number_token(tok):
         return "NUM"
 
-    clean_tok = normalize_token_for_rules(tok)
+    for tag in ["PRON", "DET", "CONJ", "POST", "ADV", "VERB", "ADJ"]:
+        if tok in POS_LEXICON[tag]:
+            return tag
 
-    if clean_tok == "":
-        return "PUNC"
-
-    if is_number_token(clean_tok):
-        return "NUM"
-
-    # 3) Calendar words
-    if clean_tok in MONTH_NAMES or clean_tok in DAY_NAMES:
+    if tok.endswith("گی") or tok.endswith("گا") or tok.endswith("گے"):
+        return "VERB"
+    if tok.endswith("انہ") or tok.endswith("ی"):
+        return "ADJ"
+    if len(tok) >= 2 and tok not in {"ہے", "ہیں", "تھا", "تھی", "تھے"}:
         return "NOUN"
 
-    # 4) High-priority exact lexical mappings
-    # Put POST before PRON because forms like "میں" are more useful as POST
-    if clean_tok in POSTPOSITIONS:
-        return "POST"
-    if clean_tok in CONJUNCTIONS:
-        return "CONJ"
-    if clean_tok in ADVERBS:
-        return "ADV"
-    if clean_tok in DETERMINERS:
-        return "DET"
-    if clean_tok in PRONOUNS:
-        return "PRON"
-    if clean_tok in VERBS:
-        return "VERB"
-    if clean_tok in ADJECTIVES:
-        return "ADJ"
-
-    # 5) Relative/interrogative pronoun-like forms
-    if clean_tok in {"جس", "جن", "جو", "جسے", "جنہیں", "کس", "کون"}:
-        return "PRON"
-
-    # 6) Negation particles treated as adverbs in reduced tagset
-    if clean_tok in {"نہ", "نہیں"}:
-        return "ADV"
-
-    # 7) Common infinitive / verbal endings
-    if clean_tok.endswith(("نا", "نے")):
-        return "VERB"
-
-    # 8) Common finite/present/past participial endings
-    if clean_tok.endswith(("تا", "تی", "تے", "گا", "گی", "گے")):
-        return "VERB"
-
-    # 9) Common adjective-like endings
-    if clean_tok.endswith(("انہ", "وار", "مند", "دار")) and len(clean_tok) > 3:
-        return "ADJ"
-
-    # 10) Comparative/superlative-like forms
-    if clean_tok in {"بہتر", "کمتر"}:
-        return "ADJ"
-
-    # 11) Common noun hints
-    if clean_tok in COMMON_NOUN_HINTS:
-        return "NOUN"
-
-    # 12) Very short noisy fragments
-    if len(clean_tok) == 1:
-        return "UNK"
-
-    # 13) Default content-word fallback
-    return "NOUN"
+    return "UNK"
 
 
 def pos_tag_sentence(tokens: List[str]) -> List[str]:
     return [pos_tag_token(tok) for tok in tokens]
-
-# -----------------------------
-# NER tagging
-# -----------------------------
-def tag_span(tags: List[str], start: int, end: int, entity_type: str) -> None:
-    if start >= end:
-        return
-    tags[start] = f"B-{entity_type}"
-    for i in range(start + 1, end):
-        tags[i] = f"I-{entity_type}"
-
-
-def try_match_multi(tokens: List[str], i: int, patterns: set) -> int:
-    for pattern in sorted(patterns, key=len, reverse=True):
-        n = len(pattern)
-        if i + n <= len(tokens) and tuple(tokens[i:i+n]) == pattern:
-            return n
-    return 0
 
 
 def ner_tag_sentence(tokens: List[str]) -> List[str]:
@@ -279,42 +278,33 @@ def ner_tag_sentence(tokens: List[str]) -> List[str]:
     i = 0
 
     while i < len(tokens):
-        # multi-token PERSON
-        m = try_match_multi(tokens, i, PERSON_MULTI)
-        if m > 0:
-            tag_span(tags, i, i + m, "PER")
-            i += m
-            continue
-
-        # multi-token LOCATION
-        m = try_match_multi(tokens, i, LOCATION_MULTI)
-        if m > 0:
-            tag_span(tags, i, i + m, "LOC")
-            i += m
-            continue
-
-        # multi-token ORG
-        m = try_match_multi(tokens, i, ORG_MULTI)
-        if m > 0:
-            tag_span(tags, i, i + m, "ORG")
-            i += m
-            continue
-
-        tok = normalize_token_for_rules(tokens[i])
+        tok = tokens[i]
 
         if tok in PERSON_GAZETTEER:
             tags[i] = "B-PER"
-            i += 1
+            j = i + 1
+            while j < len(tokens) and tokens[j] in PERSON_GAZETTEER:
+                tags[j] = "I-PER"
+                j += 1
+            i = j
             continue
 
         if tok in LOCATION_GAZETTEER:
             tags[i] = "B-LOC"
-            i += 1
+            j = i + 1
+            while j < len(tokens) and tokens[j] in LOCATION_GAZETTEER:
+                tags[j] = "I-LOC"
+                j += 1
+            i = j
             continue
 
         if tok in ORG_GAZETTEER:
             tags[i] = "B-ORG"
-            i += 1
+            j = i + 1
+            while j < len(tokens) and tokens[j] in ORG_GAZETTEER:
+                tags[j] = "I-ORG"
+                j += 1
+            i = j
             continue
 
         if tok in {"ورلڈ", "کپ", "بجٹ", "ویکسین", "ٹیکسٹائل"}:
@@ -325,9 +315,6 @@ def ner_tag_sentence(tokens: List[str]) -> List[str]:
     return tags
 
 
-# -----------------------------
-# Annotation pipeline
-# -----------------------------
 def annotate_examples(selected_df: pd.DataFrame) -> List[Dict[str, Any]]:
     annotated_examples: List[Dict[str, Any]] = []
 

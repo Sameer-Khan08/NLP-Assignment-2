@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
+from .crf import CRF
 
 class BiLSTMEncoder(nn.Module):
     """
@@ -174,3 +175,54 @@ class NERSoftmaxTagger(nn.Module):
         encoded = self.encoder(input_ids, lengths)      # [B, T, D]
         emissions = self.classifier(encoded)            # [B, T, C]
         return emissions
+    
+class NERCRFTagger(nn.Module):
+    """
+    NER model with CRF decoding:
+    Embedding -> 2-layer BiLSTM -> Linear emissions -> CRF
+    """
+
+    def __init__(
+        self,
+        vocab_size: int,
+        embedding_dim: int,
+        hidden_dim: int,
+        num_labels: int,
+        num_layers: int = 2,
+        dropout: float = 0.5,
+        bidirectional: bool = True,
+        pad_idx: int = 0,
+        embedding_matrix=None,
+        freeze_embeddings: bool = False,
+        random_init_embeddings: bool = False,
+    ):
+        super().__init__()
+
+        self.encoder = BiLSTMEncoder(
+            vocab_size=vocab_size,
+            embedding_dim=embedding_dim,
+            hidden_dim=hidden_dim,
+            num_layers=num_layers,
+            dropout=dropout,
+            bidirectional=bidirectional,
+            pad_idx=pad_idx,
+            embedding_matrix=embedding_matrix,
+            freeze_embeddings=freeze_embeddings,
+            random_init_embeddings=random_init_embeddings,
+        )
+
+        self.emission_layer = nn.Linear(self.encoder.output_dim, num_labels)
+        self.crf = CRF(num_labels)
+
+    def forward(self, input_ids, lengths):
+        encoded = self.encoder(input_ids, lengths)        # [B, T, D]
+        emissions = self.emission_layer(encoded)          # [B, T, C]
+        return emissions
+
+    def neg_log_likelihood(self, input_ids, lengths, tags, mask):
+        emissions = self.forward(input_ids, lengths)
+        return self.crf.neg_log_likelihood(emissions, tags, mask)
+
+    def decode(self, input_ids, lengths, mask):
+        emissions = self.forward(input_ids, lengths)
+        return self.crf.viterbi_decode(emissions, mask)    
