@@ -1,0 +1,390 @@
+[33mcommit 018a1656deb140c7d94653ff50805e13da233e8f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Sameer-Khan08 <khanhamzazai5@gmail.com>
+Date:   Sun Apr 19 15:33:15 2026 +0500
+
+    Initial commit
+
+[1mdiff --git a/.gitattributes b/.gitattributes[m
+[1mnew file mode 100644[m
+[1mindex 0000000..dfe0770[m
+[1m--- /dev/null[m
+[1m+++ b/.gitattributes[m
+[36m@@ -0,0 +1,2 @@[m
+[32m+[m[32m# Auto detect text files and perform LF normalization[m
+[32m+[m[32m* text=auto[m
+[1mdiff --git a/Part1.ipynb b/Part1.ipynb[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7836e90[m
+[1m--- /dev/null[m
+[1m+++ b/Part1.ipynb[m
+[36m@@ -0,0 +1,1593 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m "cells": [[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "4e568f7f",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "# TF-IDF and PMI Weighted Representations"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "d989f1fb",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "## Imports and configuration"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 1,[m
+[32m+[m[32m   "id": "34c1d36f",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "name": "stderr",[m
+[32m+[m[32m     "output_type": "stream",[m
+[32m+[m[32m     "text": [[m
+[32m+[m[32m      "c:\\DL_Env\\Shared_env\\.venv\\Lib\\site-packages\\tqdm\\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html\n",[m
+[32m+[m[32m      "  from .autonotebook import tqdm as notebook_tqdm\n"[m
+[32m+[m[32m     ][m
+[32m+[m[32m    },[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "name": "stdout",[m
+[32m+[m[32m     "output_type": "stream",[m
+[32m+[m[32m     "text": [[m
+[32m+[m[32m      "Using device: cuda\n"[m
+[32m+[m[32m     ][m
+[32m+[m[32m    }[m
+[32m+[m[32m   ],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "import os\n",[m
+[32m+[m[32m    "import re\n",[m
+[32m+[m[32m    "import json\n",[m
+[32m+[m[32m    "import math\n",[m
+[32m+[m[32m    "import random\n",[m
+[32m+[m[32m    "from collections import Counter, defaultdict\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "import numpy as np\n",[m
+[32m+[m[32m    "import pandas as pd\n",[m
+[32m+[m[32m    "import matplotlib.pyplot as plt\n",[m
+[32m+[m[32m    "from tqdm.auto import tqdm\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "from sklearn.manifold import TSNE\n",[m
+[32m+[m[32m    "from sklearn.decomposition import TruncatedSVD\n",[m
+[32m+[m[32m    "from sklearn.metrics.pairwise import cosine_similarity\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "import torch\n",[m
+[32m+[m[32m    "import torch.nn as nn\n",[m
+[32m+[m[32m    "import torch.nn.functional as F\n",[m
+[32m+[m[32m    "from torch.utils.data import Dataset, DataLoader\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "# Reproducibility\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "SEED = 42\n",[m
+[32m+[m[32m    "random.seed(SEED)\n",[m
+[32m+[m[32m    "np.random.seed(SEED)\n",[m
+[32m+[m[32m    "torch.manual_seed(SEED)\n",[m
+[32m+[m[32m    "if torch.cuda.is_available():\n",[m
+[32m+[m[32m    "    torch.cuda.manual_seed_all(SEED)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "DEVICE = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n",[m
+[32m+[m[32m    "print(\"Using device:\", DEVICE)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "# Part 1 configuration\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "BASE_DIR = \".\"  # keep notebook in same folder as cleaned.txt, raw.txt, metadata.json\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "CLEANED_PATH = os.path.join(BASE_DIR, \"cleaned.txt\")\n",[m
+[32m+[m[32m    "RAW_PATH = os.path.join(BASE_DIR, \"raw.txt\")\n",[m
+[32m+[m[32m    "META_PATH = os.path.join(BASE_DIR, \"metadata.json\")\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "MAX_VOCAB = 10000\n",[m
+[32m+[m[32m    "UNK_TOKEN = \"<UNK>\"\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "WINDOW_SIZE = 5\n",[m
+[32m+[m[32m    "NEGATIVE_SAMPLES = 10\n",[m
+[32m+[m[32m    "EMBED_DIM = 100\n",[m
+[32m+[m[32m    "LR = 1e-3\n",[m
+[32m+[m[32m    "BATCH_SIZE = 1024   # >= 512 as required\n",[m
+[32m+[m[32m    "EPOCHS = 5\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "plt.rcParams[\"figure.figsize\"] = (12, 7)\n",[m
+[32m+[m[32m    "plt.rcParams[\"font.size\"] = 11"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "3a2e4583",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "## Load and parse the files"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 2,[m
+[32m+[m[32m   "id": "6c4b14fd",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "name": "stdout",[m
+[32m+[m[32m     "output_type": "stream",[m
+[32m+[m[32m     "text": [[m
+[32m+[m[32m      "Aligned articles: 210\n",[m
+[32m+[m[32m      "Sample article id: 1\n",[m
+[32m+[m[32m      "Sample title: پنجاب کے ہسپتالوں میں ایمرجنسی میں کام کرنے والے طبّی عملے کے موبائل فون کے استعمال پر پابندی: ’حکومت وسائل دے، کارروائی کی دھمکی نہیں‘\n",[m
+[32m+[m[32m      "Sample cleaned sentence: ['پاکستان', 'کے', 'صوبے', 'پنجاب', 'کی', 'وزیر', 'اعلی', 'مریم', 'نواز', 'نے', 'دو', 'روز', 'قبل', 'اپنے', 'ایکس', 'اکاونٹ', 'سے', 'ایک', 'پوسٹ', 'کی']\n"[m
+[32m+[m[32m     ][m
+[32m+[m[32m    }[m
+[32m+[m[32m   ],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "# File readers and parsers\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "def read_text(path):\n",[m
+[32m+[m[32m    "    with open(path, \"r\", encoding=\"utf-8\") as f:\n",[m
+[32m+[m[32m    "        return f.read()\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "def read_json(path):\n",[m
+[32m+[m[32m    "    with open(path, \"r\", encoding=\"utf-8\") as f:\n",[m
+[32m+[m[32m    "        return json.load(f)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "def parse_numbered_blocks(text):\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    Parses blocks of the form:\n",[m
+[32m+[m[32m    "    [1]\n",[m
+[32m+[m[32m    "    text...\n",[m
+[32m+[m[32m    "    [2]\n",[m
+[32m+[m[32m    "    text...\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    pattern = re.compile(r\"\\[(\\d+)\\]\\s*(.*?)(?=\\n\\[\\d+\\]\\s*|\\Z)\", re.DOTALL)\n",[m
+[32m+[m[32m    "    blocks = {}\n",[m
+[32m+[m[32m    "    for match in pattern.finditer(text):\n",[m
+[32m+[m[32m    "        doc_id = match.group(1)\n",[m
+[32m+[m[32m    "        content = match.group(2).strip()\n",[m
+[32m+[m[32m    "        blocks[doc_id] = content\n",[m
+[32m+[m[32m    "    return blocks\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "def extract_cleaned_sentences(block_text):\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    Extracts text between <SOS> and <EOS>.\n",[m
+[32m+[m[32m    "    Returns list of token lists.\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    sentences = re.findall(r\"<SOS>\\s*(.*?)\\s*<EOS>\", block_text, flags=re.DOTALL)\n",[m
+[32m+[m[32m    "    out = []\n",[m
+[32m+[m[32m    "    for sent in sentences:\n",[m
+[32m+[m[32m    "        tokens = [tok.strip() for tok in sent.split() if tok.strip()]\n",[m
+[32m+[m[32m    "        if tokens:\n",[m
+[32m+[m[32m    "            out.append(tokens)\n",[m
+[32m+[m[32m    "    return out\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "RAW_TOKEN_PATTERN = re.compile(r'[\\u0600-\\u06FF]+|[A-Za-z]+|\\d+|[^\\s]')\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "def raw_tokenize(text):\n",[m
+[32m+[m[32m    "    return RAW_TOKEN_PATTERN.findall(text)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "def extract_raw_sentences(block_text):\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    Simple sentence splitter for raw Urdu/news text.\n",[m
+[32m+[m[32m    "    \"\"\"\n",[m
+[32m+[m[32m    "    parts = re.split(r\"[۔!?]+\", block_text)\n",[m
+[32m+[m[32m    "    sentences = []\n",[m
+[32m+[m[32m    "    for part in parts:\n",[m
+[32m+[m[32m    "        tokens = raw_tokenize(part)\n",[m
+[32m+[m[32m    "        if tokens:\n",[m
+[32m+[m[32m    "            sentences.append(tokens)\n",[m
+[32m+[m[32m    "    return sentences\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "# Load files\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "cleaned_text = read_text(CLEANED_PATH)\n",[m
+[32m+[m[32m    "raw_text = read_text(RAW_PATH)\n",[m
+[32m+[m[32m    "metadata = read_json(META_PATH)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "cleaned_blocks = parse_numbered_blocks(cleaned_text)\n",[m
+[32m+[m[32m    "raw_blocks = parse_numbered_blocks(raw_text)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "common_ids = sorted(\n",[m
+[32m+[m[32m    "    set(cleaned_blocks.keys()) & set(raw_blocks.keys()) & set(metadata.keys()),\n",[m
+[32m+[m[32m    "    key=lambda x: int(x)\n",[m
+[32m+[m[32m    ")\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "articles = []\n",[m
+[32m+[m[32m    "for doc_id in common_ids:\n",[m
+[32m+[m[32m    "    cleaned_sentences = extract_cleaned_sentences(cleaned_blocks[doc_id])\n",[m
+[32m+[m[32m    "    cleaned_tokens = [tok for sent in cleaned_sentences for tok in sent]\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "    raw_sentences = extract_raw_sentences(raw_blocks[doc_id])\n",[m
+[32m+[m[32m    "    raw_tokens = [tok for sent in raw_sentences for tok in sent]\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "    articles.append({\n",[m
+[32m+[m[32m    "        \"id\": doc_id,\n",[m
+[32m+[m[32m    "        \"title\": metadata[doc_id].get(\"title\", \"\"),\n",[m
+[32m+[m[32m    "        \"publish_date\": metadata[doc_id].get(\"publish_date\", \"\"),\n",[m
+[32m+[m[32m    "        \"cleaned_sentences\": cleaned_sentences,\n",[m
+[32m+[m[32m    "        \"cleaned_tokens\": cleaned_tokens,\n",[m
+[32m+[m[32m    "        \"raw_sentences\": raw_sentences,\n",[m
+[32m+[m[32m    "        \"raw_tokens\": raw_tokens,\n",[m
+[32m+[m[32m    "    })\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "print(\"Aligned articles:\", len(articles))\n",[m
+[32m+[m[32m    "print(\"Sample article id:\", articles[0][\"id\"])\n",[m
+[32m+[m[32m    "print(\"Sample title:\", articles[0][\"title\"])\n",[m
+[32m+[m[32m    "print(\"Sample cleaned sentence:\", articles[0][\"cleaned_sentences\"][0][:20])"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "dd6bd058",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "## Assign topic labels"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 3,[m
+[32m+[m[32m   "id": "23e8265e",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "name": "stdout",[m
+[32m+[m[32m     "output_type": "stream",[m
+[32m+[m[32m     "text": [[m
+[32m+[m[32m      "politics          90\n",[m
+[32m+[m[32m      "health_society    49\n",[m
+[32m+[m[32m      "economy           28\n",[m
+[32m+[m[32m      "international     27\n",[m
+[32m+[m[32m      "sports            16\n",[m
+[32m+[m[32m      "Name: count, dtype: int64\n"[m
+[32m+[m[32m     ][m
+[32m+[m[32m    },[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "data": {[m
+[32m+[m[32m      "text/html": [[m
+[32m+[m[32m       "<div>\n",[m
+[32m+[m[32m       "<style scoped>\n",[m
+[32m+[m[32m       "    .dataframe tbody tr th:only-of-type {\n",[m
+[32m+[m[32m       "        vertical-align: middle;\n",[m
+[32m+[m[32m       "    }\n",[m
+[32m+[m[32m       "\n",[m
+[32m+[m[32m       "    .dataframe tbody tr th {\n",[m
+[32m+[m[32m       "        vertical-align: top;\n",[m
+[32m+[m[32m       "    }\n",[m
+[32m+[m[32m       "\n",[m
+[32m+[m[32m       "    .dataframe thead th {\n",[m
+[32m+[m[32m       "        text-align: right;\n",[m
+[32m+[m[32m       "    }\n",[m
+[32m+[m[32m       "</style>\n",[m
+[32m+[m[32m       "<table border=\"1\" class=\"dataframe\">\n",[m
+[32m+[m[32m       "  <thead>\n",[m
+[32m+[m[32m       "    <tr style=\"text-align: right;\">\n",[m
+[32m+[m[32m       "      <th></th>\n",[m
+[32m+[m[32m       "      <th>id</th>\n",[m
+[32m+[m[32m       "      <th>title</th>\n",[m
+[32m+[m[32m       "      <th>topic</th>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "  </thead>\n",[m
+[32m+[m[32m       "  <tbody>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>0</th>\n",[m
+[32m+[m[32m       "      <td>1</td>\n",[m
+[32m+[m[32m       "      <td>پنجاب کے ہسپتالوں میں ایمرجنسی میں کام کرنے وا...</td>\n",[m
+[32m+[m[32m       "      <td>health_society</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>1</th>\n",[m
+[32m+[m[32m       "      <td>2</td>\n",[m
+[32m+[m[32m       "      <td>’قیمتی خزانہ‘ سونپنے کے لیے ’صحیح شخص‘ کی تلاش...</td>\n",[m
+[32m+[m[32m       "      <td>economy</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>2</th>\n",[m
+[32m+[m[32m       "      <td>3</td>\n",[m
+[32m+[m[32m       "      <td>گرمجوشی، مصافحہ اور طویل انتظار: ترکمانستان می...</td>\n",[m
+[32m+[m[32m       "      <td>politics</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>3</th>\n",[m
+[32m+[m[32m       "      <td>4</td>\n",[m
+[32m+[m[32m       "      <td>چار سالہ بیٹے کے ساتھ ٹریکنگ کرنے والی پاکستان...</td>\n",[m
+[32m+[m[32m       "      <td>health_society</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>4</th>\n",[m
+[32m+[m[32m       "      <td>5</td>\n",[m
+[32m+[m[32m       "      <td>اقتدار کی تبدیلی سے قدرتی آفات تک، 2025 میں جن...</td>\n",[m
+[32m+[m[32m       "      <td>health_society</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>5</th>\n",[m
+[32m+[m[32m       "      <td>6</td>\n",[m
+[32m+[m[32m       "      <td>سٹاک، میوچوئل فنڈ یا سونا: وہ سرمایہ کاری جو پ...</td>\n",[m
+[32m+[m[32m       "      <td>economy</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>6</th>\n",[m
+[32m+[m[32m       "      <td>7</td>\n",[m
+[32m+[m[32m       "      <td>پنجاب پولیس کی وردی میں ویڈیو پر تنازع، صبا قم...</td>\n",[m
+[32m+[m[32m       "      <td>politics</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>7</th>\n",[m
+[32m+[m[32m       "      <td>8</td>\n",[m
+[32m+[m[32m       "      <td>اسلام آباد میں گاڑی کی ٹکر سے سکوٹی پر سوار دو...</td>\n",[m
+[32m+[m[32m       "      <td>politics</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>8</th>\n",[m
+[32m+[m[32m       "      <td>9</td>\n",[m
+[32m+[m[32m       "      <td>ٹرمپ، نتن یاہو ملاقات: ’کچھ ممالک غزہ جا کر حم...</td>\n",[m
+[32m+[m[32m       "      <td>international</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "    <tr>\n",[m
+[32m+[m[32m       "      <th>9</th>\n",[m
+[32m+[m[32m       "      <td>10</td>\n",[m
+[32m+[m[32m       "      <td>عارف حبیب گروپ نے 135 ارب روپے میں پی آئی اے ک...</td>\n",[m
+[32m+[m[32m       "      <td>economy</td>\n",[m
+[32m+[m[32m       "    </tr>\n",[m
+[32m+[m[32m       "  </tbody>\n",[m
+[32m+[m[32m       "</table>\n",[m
+[32m+[m[32m       "</div>"[m
+[32m+[m[32m      ],[m
+[32m+[m[32m      "text/plain": [[m
+[32m+[m[32m       "   id                                              title           topic\n",[m
+[32m+[m[32m       "0   1  پنجاب کے ہسپتالوں میں ایمرجنسی میں کام کرنے وا...  health_society\n",[m
+[32m+[m[32m       "1   2  ’قیمتی خزانہ‘ سونپنے کے لیے ’صحیح شخص‘ کی تلاش...         economy\n",[m
+[32m+[m[32m       "2   3  گرمجوشی، مصافحہ اور طویل انتظار: ترکمانستان می...        politics\n",[m
+[32m+[m[32m       "3   4  چار سالہ بیٹے کے ساتھ ٹریکنگ کرنے والی پاکستان...  health_society\n",[m
+[32m+[m[32m       "4   5  اقتدار کی تبدیلی سے قدرتی آفات تک، 2025 میں جن...  health_society\n",[m
+[32m+[m[32m       "5   6  سٹاک، میوچوئل فنڈ یا سونا: وہ سرمایہ کاری جو پ...         economy\n",[m
+[32m+[m[32m       "6   7  پنجاب پولیس کی وردی میں ویڈیو پر تنازع، صبا قم...        politics\n",[m
+[32m+[m[32m       "7   8  اسلام آباد میں گاڑی کی ٹکر سے سکوٹی پر سوار دو...        politics\n",[m
+[32m+[m[32m       "8   9  ٹرمپ، نتن یاہو ملاقات: ’کچھ ممالک غزہ جا کر حم...   international\n",[m
+[32m+[m[32m       "9  10  عارف حبیب گروپ نے 135 ارب روپے میں پی آئی اے ک...         economy"[m
+[32m+[m[32m      ][m
+[32m+[m[32m     },[m
+[32m+[m[32m     "execution_count": 3,[m
+[32m+[m[32m     "metadata": {},[m
+[32m+[m[32m     "output_type": "execute_result"[m
+[32m+[m[32m    }[m
+[32m+[m[32m   ],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "# Topic assignment\n",[m
+[32m+[m[32m    "# -----------------------------\n",[m
+[32m+[m[32m    "TOPIC_KEYWORDS = {\n",[m
+[32m+[m[32m    "    \"politics\": [\n",[m
+[32m+[m[32m    "        \"حکومت\", \"وزیر\", \"وزیراعظم\", \"پارلیمان\", \"اسمبلی\", \"انتخابات\", \"انتخاب\",\n",[m
+[32m+[m[32m    "        \"سیاسی\", \"عمران\", \"نواز\", \"شہباز\", \"جماعت\", \"تحریک\", \"اپوزیشن\", \"قانون\"\n",[m
+[32m+[m[32m    "    ],\n",[m
+[32m+[m[32m    "    \"sports\": [\n",[m
+[32m+[m[32m    "        \"کرکٹ\", \"میچ\", \"ٹیم\", \"کھلاڑی\", \"رنز\", \"کپ\", \"ورلڈ\", \"سرفراز\",\n",[m
+[32m+[m[32m    "        \"فائنل\", \"سیمی\", \"وکٹ\", \"بال\", \"کھیل\", \"اسپورٹس\"\n",[m
+[32m+[m[32m    "    ],\n",[m
+[32m+[m[32m    "    \"eco
